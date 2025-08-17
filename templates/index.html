@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rainfall Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom styles for the result spans */
+        .low { color: #22c55e; /* green-500 */ }
+        .moderate { color: #f59e0b; /* amber-500 */ }
+        .high { color: #ef4444; /* red-500 */ }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <main class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-2xl m-4">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">Rainfall Predictor for Smart Cities</h1>
+        <p class="text-center text-gray-500 mb-8">Enter weather conditions to find the closest prediction from historical data.</p>
+
+        <form id="prediction-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            
+            <!-- City -->
+            <div class="md:col-span-2">
+                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                <select id="city" name="city" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required></select>
+            </div>
+            <div>
+                <label for="year" class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                <select id="year" name="year" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+                    <option value="">-- Select a Year --</option>
+                    <script>
+                        const currentYear = new Date().getFullYear();
+                        for (let year = 2025; year <= 2040; year++) {
+                            document.write(`<option value="${year}">${year}</option>`);
+                        }
+                    </script>
+                </select>
+            </div>
+
+            <div>
+                <label for="month" class="block text-sm font-medium text-gray-700 mb-1">Month</label>
+                <select id="month" name="month" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+                    <option value="">-- Select a Month --</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+            <div class="md:col-span-2 flex items-center space-x-4 mt-2">
+                <button type="button" id="manual-btn" class="w-full bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition">
+                    Manually
+                </button>
+                <button type="button" id="auto-btn" class="w-full bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition">
+                    Automatically
+                </button>
+            </div>
+            <!-- Temperature -->
+            <div>
+                <label for="temperature_2m" class="block text-sm font-medium text-gray-700 mb-1">Temperature (Normalized)</label>
+                <input type="number" id="temperature_2m" name="temperature_2m" value="0.5" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+            </div>
+
+            <!-- Humidity -->
+            <div>
+                <label for="relative_humidity_2m" class="block text-sm font-medium text-gray-700 mb-1">Relative Humidity (Normalized)</label>
+                <input type="number" id="relative_humidity_2m" name="relative_humidity_2m" value="0.5" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+            </div>
+            
+            <!-- Dew Point -->
+            <div>
+                <label for="dew_point_2m" class="block text-sm font-medium text-gray-700 mb-1">Dew Point (Normalized)</label>
+                <input type="number" id="dew_point_2m" name="dew_point_2m" value="0.5" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+            </div>
+
+            <!-- Pressure -->
+            <div>
+                <label for="surface_pressure" class="block text-sm font-medium text-gray-700 mb-1">Surface Pressure (Normalized)</label>
+                <input type="number" id="surface_pressure" name="surface_pressure" value="0.5" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+            </div>
+
+            <!-- Cloud Cover -->
+            <div>
+                <label for="cloud_cover" class="block text-sm font-medium text-gray-700 mb-1">Cloud Cover (Normalized)</label>
+                <input type="number" id="cloud_cover" name="cloud_cover" value="0.5" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+            </div>
+
+            <!-- Wind Speed -->
+            <div>
+                <label for="wind_speed_10m" class="block text-sm font-medium text-gray-700 mb-1">Wind Speed (Normalized)</label>
+                <input type="number" id="wind_speed_10m" name="wind_speed_10m" value="0.5" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+            </div>
+
+            <!-- Wind Gusts -->
+            <div class="md:col-span-2">
+                <label for="wind_gusts_10m" class="block text-sm font-medium text-gray-700 mb-1">Wind Gusts (Normalized)</label>
+                <input type="number" id="wind_gusts_10m" name="wind_gusts_10m" value="0.5" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="md:col-span-2">
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105 disabled:bg-gray-400">
+                    Predict
+                </button>
+            </div>
+        </form>
+
+        <!-- Result Display Area -->
+        <div id="result" class="mt-8 bg-gray-50 p-6 rounded-lg border border-gray-200 text-gray-700 text-lg leading-relaxed">
+            Prediction results will appear here...
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:5000';
+        const form = document.getElementById("prediction-form");
+        const resultDiv = document.getElementById("result");
+        const citySelect = document.getElementById("city");
+        const autoBtn = document.getElementById("auto-btn"); // Get the "Automatically" button
+        const manualBtn = document.getElementById("manual-btn"); // Get the "Manually" button
+        
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/cities`);
+                if (!res.ok) throw new Error(`Failed to fetch cities. Server responded: ${res.status}`);
+                const cities = await res.json();
+                
+                citySelect.innerHTML = '<option value="">-- Select a City --</option>';
+                cities.forEach(city => {
+                    const option = document.createElement("option");
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Error fetching cities:", error);
+                result.innerHTML = `<p class="text-red-500 font-semibold">Error: Could not connect to the backend to get the city list. Please ensure the Flask server is running.</p>`;
+            }
+        });
+        // NEW: Function to handle the 'Automatically' button click
+        const fetchAndFillWeather = async () => {
+            const city = document.getElementById('city').value;
+            const year = document.getElementById('year').value;
+            const monthSelect = document.getElementById('month');
+            const month = monthSelect.options[monthSelect.selectedIndex].text; // Get month name like "January"
+            
+            if (!city || !year || !monthSelect.value) {
+                resultDiv.innerHTML = `<p class="text-red-500 font-semibold">Please select a City, Year, and Month first.</p>`;
+                return;
+            }
+
+            autoBtn.disabled = true;
+            autoBtn.textContent = 'Fetching...';
+            resultDiv.innerHTML = '🔮 Predicting future weather conditions...';
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/predict_weather_auto`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ city, year, month })
+                });
+
+                const data = await res.json();
+                
+                if (res.ok) {
+                    // Populate the form fields with the predicted data
+                    document.getElementById('temperature_2m').value = data.temperature_2m.toFixed(2);
+                    document.getElementById('relative_humidity_2m').value = data.relative_humidity_2m.toFixed(2);
+                    document.getElementById('dew_point_2m').value = data.dew_point_2m.toFixed(2);
+                    document.getElementById('surface_pressure').value = data.surface_pressure.toFixed(2);
+                    document.getElementById('cloud_cover').value = data.cloud_cover.toFixed(2);
+                    document.getElementById('wind_speed_10m').value = data.wind_speed_10m.toFixed(2);
+                    document.getElementById('wind_gusts_10m').value = data.wind_gusts_10m.toFixed(2);
+                    
+                    resultDiv.innerHTML = '✅ Weather parameters have been automatically filled. Click "Predict" to see the rainfall.';
+                } else {
+                     resultDiv.innerHTML = `<p class="text-red-500 font-semibold">❌ Error: ${data.error || "Unable to predict weather."}</p>`;
+                }
+
+            } catch (error) {
+                console.error("Weather prediction request failed:", error);
+                resultDiv.innerHTML = `<p class="text-red-500 font-semibold">❌ Error: Could not connect to the weather prediction server.</p>`;
+            } finally {
+                 autoBtn.disabled = false;
+                 autoBtn.textContent = 'Automatically';
+            }
+        };
+
+        // NEW: Attach the event listener to the "Automatically" button
+        autoBtn.addEventListener('click', fetchAndFillWeather);
+
+        // This is your ORIGINAL form submission logic. It remains the same.
+        // It will now work with both manually entered data and auto-filled data.
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const button = form.querySelector('button[type="submit"]');
+            button.disabled = true;
+            button.textContent = 'Predicting...';
+            result.innerHTML = 'Analyzing data...';
+
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/predict`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                
+                if (res.ok) {
+                    const riskClass = data.Flood_Risk_Level.toLowerCase();
+                    resultDiv.innerHTML = `
+                        <p class="mb-2">📍 <b>City:</b> ${data.City}</p>
+                        <p class="mb-2">🌧️ <b>Predicted Rainfall:</b> ${data.Predicted_Rainfall_mm} mm</p>
+                        
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p class="text-red-500 font-semibold">❌ Error: ${data.error || "Unable to get prediction."}</p>`;
+                }
+            } catch (error) {
+                console.error("Prediction request failed:", error);
+                resultDiv.innerHTML = `<p class="text-red-500 font-semibold">❌ Error: Could not connect to the prediction server. Please ensure it is running.</p>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Predict';
+            }
+        });
+    </script>
+</body>
+</html>
